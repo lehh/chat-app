@@ -9,23 +9,23 @@ socket.on('loggedIn', () => {
         let div = document.createElement('div');
         div.appendChild(createStrongText(`${username}`));
         div.append(" just entered the chat.");
-    
+
         appendDivToMessagesContainer(div);
     });
-    
+
     socket.on('receiveMessage', (text, username) => {
         let div = document.createElement('div');
         div.appendChild(createStrongText(`${username} says: `));
         div.append(text);
-    
+
         appendDivToMessagesContainer(div);
     });
-    
+
     socket.on('userDisconnected', (username) => {
         let div = document.createElement('div');
         div.appendChild(createStrongText(`${username}`));
         div.append(" disconnected.");
-    
+
         appendDivToMessagesContainer(div);
     });
 });
@@ -57,24 +57,24 @@ document.querySelector("#location").addEventListener("click", () => {
         return alert('Geolocation not supported.');
 
     navigator.geolocation.getCurrentPosition((position) => {
-        let xhr = new XMLHttpRequest();
-        let latlong = `${position.coords.latitude},${position.coords.longitude}`; 
+        let latLong = `${position.coords.latitude},${position.coords.longitude}`;
+        let sessionLatLong = sessionStorage.getItem("latLong");
 
-        xhr.open('GET', `/address/${latlong}`);
-        xhr.onload = () => {
-            if (xhr.status === 200){
-
-                let address = JSON.parse(xhr.responseText);
+        if (sessionLatLong && latLong === sessionLatLong) {
+            socket.emit("sendMessage", sessionStorage.getItem("locationMessage"));
+        } else {
+            getAddress(latLong).then((address) => {
                 let concatAddress = `${address.District} - ${address.City} - ${address.State}`;
-                let message = `That's my live location ${concatAddress}`; 
+                let message = `That's my live location ${concatAddress}`;
+
                 socket.emit("sendMessage", message);
-            }
-            else {
-                alert("Error while fetching the address");
-                console.log(xhr.responseText);
-            }
+
+                sessionStorage.setItem("locationMessage", message);
+                sessionStorage.setItem("latLong", latLong);
+            }).catch((error) => {
+                alert(`Error while fetching the address: ${error}`);
+            });
         }
-        xhr.send();
     });
 });
 //-----------------------
@@ -87,10 +87,28 @@ let appendDivToMessagesContainer = (div) => {
     messagesDiv.scrollTop = messagesDiv.scrollHeight; //Scroll down to the bottom of the messages container
 }
 
-let createStrongText = (text) =>{
+let createStrongText = (text) => {
     let strongElement = document.createElement('strong');
     strongElement.append(text);
 
     return strongElement;
+}
+
+let getAddress = (latLong) => {
+    return new Promise((resolve, reject) => {
+        let xhr = new XMLHttpRequest();
+
+        xhr.open('GET', `/address/${latLong}`);
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                let address = JSON.parse(xhr.responseText);
+                resolve(address);
+            }
+            else {
+                reject(xhr.responseText);
+            }
+        }
+        xhr.send();
+    });
 }
 //-----------------------

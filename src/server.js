@@ -7,8 +7,6 @@ const io = socketio(server);
 
 const port = process.env.PORT || 3000;
 
-let onlineUsers = [];
-
 io.on('connection', (socket) => {
     console.log('New WebSocket connection');
 
@@ -16,7 +14,6 @@ io.on('connection', (socket) => {
 
     socket.on('sendUser', (user) => {
         username = user;
-        //onlineUsers.push(user);
         socket.emit('loggedIn');
         io.emit('newUserLoggedIn', username)
     });

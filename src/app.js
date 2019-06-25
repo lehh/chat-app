@@ -10,6 +10,7 @@ app.use(express.static(publicPath));
 
 app.get('/address/:position', (req, res) => {
     let position = req.params.position;
+    
     geocodeAddress(position)
     .then((address) => {
         res.send(address);
