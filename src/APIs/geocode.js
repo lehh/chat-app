@@ -2,10 +2,10 @@ const request = require('request');
 const appId = process.env.HERE_ID;
 const appCode = process.env.HERE_CODE;
 
-var geocodeAddress = (address) => {
+var geocodeAddress = (location) => {
     return new Promise((resolve, reject) => {
         request({
-            url: `https://geocoder.api.here.com/6.2/geocode.json?app_id=${appId}&app_code=${appCode}&searchtext=${address}`,
+            url: `https://reverse.geocoder.api.here.com/6.2/reversegeocode.json?app_id=${appId}&app_code=${appCode}&mode=retrieveAddress&prox=${location}`,
             json: true
         }, (error, response, body) => {
             if (error) {
@@ -17,7 +17,7 @@ var geocodeAddress = (address) => {
             else if (body.Response.View.length < 1) {
                 reject("Address not Found.");                
             } else {
-                resolve(body.Response.View[0].Result[0]);
+                resolve(body.Response.View[0].Result[0].Location.Address);
             }
         });
     });

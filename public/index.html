@@ -8,7 +8,8 @@
             flex-flow: column wrap;
         }
 
-        .flex-container>div {
+        .flex-container>div,
+        form {
             margin: 10px;
         }
 
@@ -17,7 +18,7 @@
             border-style: solid;
             border-color: #b6b6b3;
             flex-basis: 250px;
-            overflow-y: auto;
+            overflow-y: scroll;
         }
 
         #messages>div {
@@ -27,31 +28,34 @@
 </head>
 
 <body>
-    <form id="chatForm">
-        <div class="flex-container">
-            <div>
-                Chat App!
-            </div>
+    <div class="flex-container">
+        <div>
+            Chat App!
+        </div>
 
+        <form id="userForm">
             <div>
                 <input type="text" id="username" />
-                <input type="button" id="sendUser" value="Enter Chat">
+                <input type="submit" value="Enter Chat">
             </div>
+        </form>
 
-            <div id="messages">
+    </div>
 
-            </div>
 
-            <div>
-                <textarea name="text" id="text" rows="6" cols="60"></textarea>
-            </div>
+    <div class="flex-container" id="hiddenChat" style="display:none;">
+        <div id="messages">
 
-            <div>
-                <button type="submit" id="submit">Submit</button>
-                <button type="button" id="location">Share Location</button>
-            </div>
         </div>
-    </form>
+        <div>
+            <textarea name="text" id="text" rows="6" cols="60"></textarea>
+            <button type="button" id="sendBtn">Send</button>
+        </div>
+
+        <div>
+            <button type="button" id="location">Share Location</button>
+        </div>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/chat.js"></script>

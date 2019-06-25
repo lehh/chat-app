@@ -7,6 +7,8 @@ const io = socketio(server);
 
 const port = process.env.PORT || 3000;
 
+let onlineUsers = [];
+
 io.on('connection', (socket) => {
     console.log('New WebSocket connection');
 
@@ -14,15 +16,18 @@ io.on('connection', (socket) => {
 
     socket.on('sendUser', (user) => {
         username = user;
-        io.emit("receiveMessage", `${username} just entered the chat!`);
+        //onlineUsers.push(user);
+        socket.emit('loggedIn');
+        io.emit('newUserLoggedIn', username)
     });
 
     socket.on('sendMessage', (text) => {
-        io.emit("receiveMessage", text);
+        io.emit("receiveMessage", text, username);
     });
 
     socket.on('disconnect', () => {
-        io.emit("receiveMessage", `${username} disconnected`);
+        if (username)
+            io.emit("userDisconnected", username);
     });
 });
 
