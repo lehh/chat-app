@@ -5,28 +5,28 @@ socket.on('loggedIn', () => {
     document.querySelector('#hiddenChat').style.display = 'flex';
     document.querySelector('#userForm').style.display = 'none';
 
-    socket.on('newUserLoggedIn', (username) => {
+    socket.on('newUserLoggedIn', (message) => {
         let div = document.createElement('div');
-        div.appendChild(createStrongText(`${username}`));
+        div.appendChild(createStrongText(message.username));
         div.append(" just entered the chat.");
-
-        appendDivToMessagesContainer(div);
+        
+        appendToMessagesContainer(div, message.time);
     });
 
-    socket.on('receiveMessage', (text, username) => {
+    socket.on('receiveMessage', (message) => {
         let div = document.createElement('div');
-        div.appendChild(createStrongText(`${username} says: `));
-        div.append(text);
+        div.appendChild(createStrongText(`${message.username} says: `));
+        div.append(message.text);
 
-        appendDivToMessagesContainer(div);
+        appendToMessagesContainer(div, message.time);
     });
 
-    socket.on('userDisconnected', (username) => {
+    socket.on('userDisconnected', (message) => {
         let div = document.createElement('div');
-        div.appendChild(createStrongText(`${username}`));
+        div.appendChild(createStrongText(message.username));
         div.append(" disconnected.");
 
-        appendDivToMessagesContainer(div);
+        appendToMessagesContainer(div, message.time);
     });
 });
 //---------------
@@ -40,7 +40,7 @@ document.querySelector("#userForm").addEventListener("submit", (event) => {
 
 document.querySelector("#sendBtn").addEventListener('click', (event) => {
     let text = document.querySelector("#text");
-    socket.emit('sendMessage', text.value);
+    sendMessage(text.value);
     text.value = "";
 });
 
@@ -61,13 +61,13 @@ document.querySelector("#location").addEventListener("click", () => {
         let sessionLatLong = sessionStorage.getItem("latLong");
 
         if (sessionLatLong && latLong === sessionLatLong) {
-            socket.emit("sendMessage", sessionStorage.getItem("locationMessage"));
+            sendMessage(sessionStorage.getItem("locationMessage"));
         } else {
             getAddress(latLong).then((address) => {
                 let concatAddress = `${address.District} - ${address.City} - ${address.State}`;
                 let message = `That's my live location ${concatAddress}`;
 
-                socket.emit("sendMessage", message);
+                sendMessage(message);
 
                 sessionStorage.setItem("locationMessage", message);
                 sessionStorage.setItem("latLong", latLong);
@@ -80,11 +80,24 @@ document.querySelector("#location").addEventListener("click", () => {
 //-----------------------
 
 //Javascript functions
-let appendDivToMessagesContainer = (div) => {
+let appendToMessagesContainer = (div, time) => {
     let messagesDiv = document.querySelector("#messages");
+    let timeDiv = createTimeDiv(time);
+
+    div.insertAdjacentElement("afterbegin", timeDiv);
 
     messagesDiv.appendChild(div);
     messagesDiv.scrollTop = messagesDiv.scrollHeight; //Scroll down to the bottom of the messages container
+}
+
+let createTimeDiv = (time) => {
+    let timeDiv = document.createElement('div');
+    let formatedTime = moment(time).format("ddd, MMMM Do YYYY - h:mm:ss a");
+
+    timeDiv.setAttribute('class', 'time');
+    timeDiv.append(formatedTime);
+
+    return timeDiv;
 }
 
 let createStrongText = (text) => {
@@ -92,6 +105,10 @@ let createStrongText = (text) => {
     strongElement.append(text);
 
     return strongElement;
+}
+
+let sendMessage = (message) => {
+    socket.emit('sendMessage', { text: message, createdAt: new Date().getTime() })
 }
 
 let getAddress = (latLong) => {

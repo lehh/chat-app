@@ -1,6 +1,7 @@
 const app = require('./app');
 const http = require('http');
 const socketio = require('socket.io');
+const { buildMessage } = require('./utils/messages');
 
 const server = http.createServer(app);
 const io = socketio(server);
@@ -15,16 +16,19 @@ io.on('connection', (socket) => {
     socket.on('sendUser', (user) => {
         username = user;
         socket.emit('loggedIn');
-        io.emit('newUserLoggedIn', username)
+        io.emit('newUserLoggedIn', buildMessage("", username))
     });
 
-    socket.on('sendMessage', (text) => {
-        io.emit("receiveMessage", text, username);
+    socket.on('sendMessage', (message) => {
+        if (message.text){
+            message.username = username;
+            io.emit("receiveMessage", message);
+        } 
     });
 
     socket.on('disconnect', () => {
         if (username)
-            io.emit("userDisconnected", username);
+            io.emit("userDisconnected", buildMessage("", username));
     });
 });
 

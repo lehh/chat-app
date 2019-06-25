@@ -3,6 +3,11 @@
 
 <head>
     <style>
+        .time {
+            color: #646468;
+            font-size: 11px;
+        }
+
         .flex-container {
             display: flex;
             flex-flow: column wrap;
@@ -11,6 +16,10 @@
         .flex-container>div,
         form {
             margin: 10px;
+        }
+
+        #text {
+            font-size: 14px;
         }
 
         #messages {
@@ -56,6 +65,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/chat.js"></script>
 </body>
