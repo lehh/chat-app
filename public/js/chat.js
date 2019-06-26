@@ -1,15 +1,24 @@
 const socket = io();
 
 //Socket listeners
-socket.on('loggedIn', () => {
+socket.on('connected', (onlineUsersLength) =>{
+    console.log(onlineUsersLength);
+})
+
+socket.on('loggedIn', (onlineUsers) => {
     document.querySelector('#hiddenChat').style.display = 'flex';
     document.querySelector('#userForm').style.display = 'none';
+
+    onlineUsers.forEach((username) => {
+        appendToOnlineUsersContainer(username);
+    });
 
     socket.on('newUserLoggedIn', (message) => {
         let div = document.createElement('div');
         div.appendChild(createStrongText(message.username));
         div.append(" just entered the chat.");
         
+        appendToOnlineUsersContainer(message.username);
         appendToMessagesContainer(div, message.time);
     });
 
@@ -26,6 +35,7 @@ socket.on('loggedIn', () => {
         div.appendChild(createStrongText(message.username));
         div.append(" disconnected.");
 
+        removeOnlineUser(message.username);
         appendToMessagesContainer(div, message.time);
     });
 });
@@ -81,7 +91,7 @@ document.querySelector("#location").addEventListener("click", () => {
 
 //Javascript functions
 let appendToMessagesContainer = (div, time) => {
-    let messagesDiv = document.querySelector("#messages");
+    let messagesDiv = document.querySelector("#messagesContainer");
     let timeDiv = createTimeDiv(time);
 
     div.insertAdjacentElement("afterbegin", timeDiv);
@@ -105,6 +115,19 @@ let createStrongText = (text) => {
     strongElement.append(text);
 
     return strongElement;
+}
+
+let appendToOnlineUsersContainer = (username) => {
+    let userDiv = document.createElement('div');
+    userDiv.setAttribute('class', 'onlineUser');
+    userDiv.setAttribute('id', username.replace(' ', ''));
+    userDiv.append(username);
+
+    document.querySelector('#onlineUsersContainer').appendChild(userDiv);
+}
+
+let removeOnlineUser = (username) => {
+    document.querySelector(`#${username.replace(' ', '')}`).remove();
 }
 
 let sendMessage = (message) => {

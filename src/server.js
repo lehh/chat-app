@@ -8,15 +8,29 @@ const io = socketio(server);
 
 const port = process.env.PORT || 3000;
 
+let onlineUsers = [];
+
 io.on('connection', (socket) => {
     console.log('New WebSocket connection');
+    socket.emit("connected", onlineUsers.length);
 
     let username = "";
 
     socket.on('sendUser', (user) => {
-        username = user;
-        socket.emit('loggedIn');
-        io.emit('newUserLoggedIn', buildMessage("", username))
+        let isValid = true;
+
+        onlineUsers.forEach((username) => {
+            if (username == user)
+                isValid = false; return false;
+        })
+
+        if (isValid){
+            username = user;
+
+            socket.emit('loggedIn', onlineUsers);
+            onlineUsers.push(username);
+            io.emit('newUserLoggedIn', buildMessage("", username));
+        } 
     });
 
     socket.on('sendMessage', (message) => {
@@ -27,8 +41,13 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        if (username)
+        if (username){
+            onlineUsers = onlineUsers.filter((value) => {
+                return value !== username;
+            })
+
             io.emit("userDisconnected", buildMessage("", username));
+        }
     });
 });
 

@@ -2,38 +2,9 @@
 <html>
 
 <head>
-    <style>
-        .time {
-            color: #646468;
-            font-size: 11px;
-        }
-
-        .flex-container {
-            display: flex;
-            flex-flow: column wrap;
-        }
-
-        .flex-container>div,
-        form {
-            margin: 10px;
-        }
-
-        #text {
-            font-size: 14px;
-        }
-
-        #messages {
-            border-width: 1px;
-            border-style: solid;
-            border-color: #b6b6b3;
-            flex-basis: 250px;
-            overflow-y: scroll;
-        }
-
-        #messages>div {
-            padding: 20px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="css/chat.css" />
+    <title>Chat App</title>
 </head>
 
 <body>
@@ -52,20 +23,27 @@
     </div>
 
     <div class="flex-container" id="hiddenChat" style="display:none;">
-        <div id="messages">
 
-        </div>
-        <div>
-            <textarea name="text" id="text" rows="6" cols="60"></textarea>
-            <button type="button" id="sendBtn">Send</button>
+        <div id="chatContainer">
+            <div id="messagesContainer">
+            </div>
+
+            <div id="onlineUsersContainer">
+                <div id="onlineUsersTitle">Online Users</div>
+            </div>
         </div>
 
         <div>
             <button type="button" id="location">Share Location</button>
         </div>
+
+        <div id="textDiv">
+            <textarea name="text" id="text" rows="6"></textarea>
+            <button type="button" id="sendBtn">Send</button>
+        </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
+    <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/chat.js"></script>
 </body>
