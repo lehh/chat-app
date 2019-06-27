@@ -2,52 +2,76 @@ const app = require('./app');
 const http = require('http');
 const socketio = require('socket.io');
 const { buildMessage } = require('./utils/messages');
+const { insertUser, retrieveUsersInRoom, retrieveUser, removeUser } = require('./utils/users');
+const { insertRoom, retrieveAllRooms } = require('./utils/rooms');
 
 const server = http.createServer(app);
 const io = socketio(server);
 
 const port = process.env.PORT || 3000;
 
-let onlineUsers = [];
+//TODO:
+//Add a back/disconnect button
+//Emit an event after a room creation to update the roomContainer.
+//Styles!
 
 io.on('connection', (socket) => {
-    console.log('New WebSocket connection');
-    socket.emit("connected", onlineUsers.length);
+    console.log('New WebSocket connection ' + socket.id);
 
-    let username = "";
+    socket.on('retrieveRooms', (callback) => {
+        let rooms = retrieveAllRooms();
 
-    socket.on('sendUser', (user) => {
-        let isValid = true;
-
-        onlineUsers.forEach((username) => {
-            if (username == user)
-                isValid = false; return false;
+        rooms.forEach((room) => {
+            room.onlineUsers = retrieveUsersInRoom(room.name);
         })
 
-        if (isValid){
-            username = user;
+        callback(rooms);
+    })
 
-            socket.emit('loggedIn', onlineUsers);
-            onlineUsers.push(username);
-            io.emit('newUserLoggedIn', buildMessage("", username));
-        } 
+    socket.on('createRoom', (roomName, callback) => {
+        insertRoom(socket.id, roomName).then(() => {
+            callback(undefined);
+        }).catch((error) => {
+            callback(error);
+        });
+    });
+
+    socket.on('join', ({ username, room }, callback) => {
+        let onlineUsers = retrieveUsersInRoom(room);
+
+        insertUser(socket.id, username, room).then(() => {
+            socket.join(room);
+
+            io.to(room).emit('newUserLoggedIn', buildMessage("", username));
+
+            callback(undefined, onlineUsers);
+
+        }).catch((error) => {
+            callback(error);
+        });
     });
 
     socket.on('sendMessage', (message) => {
-        if (message.text){
-            message.username = username;
-            io.emit("receiveMessage", message);
-        } 
+        if (message.text) {
+            let user = retrieveUser(socket.id);
+
+            message.username = user.username;
+            io.to(user.room).emit("receiveMessage", message);
+        }
     });
 
     socket.on('disconnect', () => {
-        if (username){
-            onlineUsers = onlineUsers.filter((value) => {
-                return value !== username;
-            })
+        let user = retrieveUser(socket.id);
 
-            io.emit("userDisconnected", buildMessage("", username));
+        if (user) {
+            removeUser(socket.id).then(() => {
+                io.to(user.room).emit("userDisconnected", buildMessage("", user.username));
+            }).catch((error) => {
+                console.log(error);
+            });
         }
+
+        console.log(`${socket.id} disconnected`);
     });
 });
 

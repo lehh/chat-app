@@ -8,19 +8,31 @@
 </head>
 
 <body>
-    <div class="flex-container">
-        <div>
-            Chat App!
-        </div>
-
-        <form id="userForm">
+    <form id="indexForm">
+        <div class="flex-container">
             <div>
-                <input type="text" id="username" />
-                <input type="submit" value="Enter Chat">
+                Chat App!
             </div>
-        </form>
 
-    </div>
+            <div>
+                <input type="text" name="username" id="username" placeholder="Username" required />
+            </div>
+
+            <div id="roomContainer">
+
+            </div>
+
+            <div>
+                <input type="text" id="newRoomText" placeholder="Room name"/>
+                <input type="button" value="New Room" id="newRoomBtn"/>
+            </div>
+
+            <input type="hidden" id="hiddenRoom" name="room">
+
+
+            <input type="submit" id="submitBtn" style="display: none;">
+        </div>
+    </form>
 
     <div class="flex-container" id="hiddenChat" style="display:none;">
 
@@ -42,7 +54,7 @@
             <button type="button" id="sendBtn">Send</button>
         </div>
     </div>
-
+    
     <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/chat.js"></script>

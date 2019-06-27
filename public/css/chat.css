@@ -7,8 +7,12 @@ body {
     flex-flow: column wrap;
 }
 
-.flex-container>div, form {
+.flex-container>div {
     margin: 10px;
+}
+
+.room {
+    cursor: pointer;
 }
 
 #textDiv {

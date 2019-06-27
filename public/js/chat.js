@@ -1,51 +1,82 @@
 const socket = io();
 
 //Socket listeners
-socket.on('connected', (onlineUsersLength) =>{
-    console.log(onlineUsersLength);
-})
+socket.emit('retrieveRooms', (roomList) => {
+    roomList.forEach((room) => {
+        appendToRoomContainer(room.name, room.owner, room.onlineUsers.length);
+    })
+});
 
-socket.on('loggedIn', (onlineUsers) => {
-    document.querySelector('#hiddenChat').style.display = 'flex';
-    document.querySelector('#userForm').style.display = 'none';
+socket.on('newUserLoggedIn', (message) => {
+    let div = document.createElement('div');
+    div.appendChild(createStrongText(message.username));
+    div.append(" just entered the chat.");
 
-    onlineUsers.forEach((username) => {
-        appendToOnlineUsersContainer(username);
-    });
+    appendToOnlineUsersContainer(message.username);
+    appendToMessagesContainer(div, message.time);
+});
 
-    socket.on('newUserLoggedIn', (message) => {
-        let div = document.createElement('div');
-        div.appendChild(createStrongText(message.username));
-        div.append(" just entered the chat.");
-        
-        appendToOnlineUsersContainer(message.username);
-        appendToMessagesContainer(div, message.time);
-    });
+socket.on('receiveMessage', (message) => {
+    let div = document.createElement('div');
+    div.appendChild(createStrongText(`${message.username} says: `));
+    div.append(message.text);
 
-    socket.on('receiveMessage', (message) => {
-        let div = document.createElement('div');
-        div.appendChild(createStrongText(`${message.username} says: `));
-        div.append(message.text);
+    appendToMessagesContainer(div, message.time);
+});
 
-        appendToMessagesContainer(div, message.time);
-    });
+socket.on('userDisconnected', (message) => {
+    let div = document.createElement('div');
+    div.appendChild(createStrongText(message.username));
+    div.append(" disconnected.");
 
-    socket.on('userDisconnected', (message) => {
-        let div = document.createElement('div');
-        div.appendChild(createStrongText(message.username));
-        div.append(" disconnected.");
-
-        removeOnlineUser(message.username);
-        appendToMessagesContainer(div, message.time);
-    });
+    removeOnlineUser(message.username);
+    appendToMessagesContainer(div, message.time);
 });
 //---------------
 
 //Javascript listeners
-document.querySelector("#userForm").addEventListener("submit", (event) => {
+document.querySelector("#indexForm").addEventListener("submit", (event) => {
     event.preventDefault();
-    let username = event.target.elements.username.value;
-    socket.emit('sendUser', username);
+
+    let elements = event.target.elements;
+    let username = elements.username.value;
+    let room = elements.room.value;
+
+    socket.emit('join', { username, room }, (error, onlineUsers) => {
+        if (!error) {
+            document.querySelector('#hiddenChat').style.display = 'flex';
+            document.querySelector('#indexForm').style.display = 'none';
+
+            onlineUsers.forEach((user) => {
+                appendToOnlineUsersContainer(user.username);
+            });
+        } else {
+            alert(`Something has occurred: ${error}`);
+        }
+
+    });
+});
+
+document.addEventListener('click', (event) => { //Listener for .room class objects.
+    if (event.target && event.target.className === 'room') {
+        let room = event.target.dataset.name;
+        submitForm(room);
+    }
+});
+
+document.querySelector('#newRoomBtn').addEventListener('click', (event) => {
+    let form = document.querySelector("#indexForm");
+
+    if (form.checkValidity()) {
+        let room = document.querySelector('#newRoomText').value;
+
+        socket.emit('createRoom', room, (error) => {
+            if (!error)
+                submitForm(room);
+            else
+                alert(error);
+        });
+    }
 });
 
 document.querySelector("#sendBtn").addEventListener('click', (event) => {
@@ -120,18 +151,34 @@ let createStrongText = (text) => {
 let appendToOnlineUsersContainer = (username) => {
     let userDiv = document.createElement('div');
     userDiv.setAttribute('class', 'onlineUser');
-    userDiv.setAttribute('id', username.replace(' ', ''));
+    userDiv.setAttribute('id', username.trim());
     userDiv.append(username);
 
     document.querySelector('#onlineUsersContainer').appendChild(userDiv);
 }
 
 let removeOnlineUser = (username) => {
-    document.querySelector(`#${username.replace(' ', '')}`).remove();
+    document.querySelector(`#${username.trim()}`).remove();
+}
+
+let appendToRoomContainer = (roomName, ownerId, numberOfUsers) => {
+    let roomDiv = document.createElement('div');
+    roomDiv.setAttribute('class', 'room');
+    roomDiv.setAttribute('data-id', ownerId);
+    roomDiv.setAttribute('data-name', roomName);
+    roomDiv.append(`${roomName} - ${numberOfUsers}`);
+
+    document.querySelector('#roomContainer').appendChild(roomDiv);
 }
 
 let sendMessage = (message) => {
     socket.emit('sendMessage', { text: message, createdAt: new Date().getTime() })
+}
+
+let submitForm = (room) => {
+    document.querySelector('#hiddenRoom').value = room;
+
+    document.querySelector('#submitBtn').click();
 }
 
 let getAddress = (latLong) => {
