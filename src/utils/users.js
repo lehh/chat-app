@@ -54,6 +54,7 @@ const removeUser = (userId) => {
 
                 if (room) {
                     let onlineUsers = retrieveUsersInRoom(room.name);
+
                     if (onlineUsers.length > 0) {
                         updateRoomOwner(userId, onlineUsers[0].id)
                     } else {

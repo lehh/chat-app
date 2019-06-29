@@ -12,11 +12,13 @@ const port = process.env.PORT || 3000;
 
 //TODO:
 //Add a back/disconnect button
-//Emit an event after a room creation to update the roomContainer.
 //Styles!
 
 io.on('connection', (socket) => {
+    let guestRoom = 'guest';
+
     console.log('New WebSocket connection ' + socket.id);
+    socket.join(guestRoom);
 
     socket.on('retrieveRooms', (callback) => {
         let rooms = retrieveAllRooms();
@@ -40,9 +42,11 @@ io.on('connection', (socket) => {
         let onlineUsers = retrieveUsersInRoom(room);
 
         insertUser(socket.id, username, room).then(() => {
+            socket.leave(guestRoom);
             socket.join(room);
 
             io.to(room).emit('newUserLoggedIn', buildMessage("", username));
+            io.to(guestRoom).emit("updateRooms");
 
             callback(undefined, onlineUsers);
 
@@ -66,6 +70,7 @@ io.on('connection', (socket) => {
         if (user) {
             removeUser(socket.id).then(() => {
                 io.to(user.room).emit("userDisconnected", buildMessage("", user.username));
+                io.to(guestRoom).emit("updateRooms");
             }).catch((error) => {
                 console.log(error);
             });

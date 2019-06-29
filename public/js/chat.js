@@ -1,10 +1,19 @@
 const socket = io();
 
+const retrieveRooms = () => {
+    socket.emit('retrieveRooms', (roomList) => {
+        document.querySelector('#roomContainer').innerHTML = "";
+        roomList.forEach((room) => {
+            appendToRoomContainer(room.name, room.owner, room.onlineUsers.length);
+        })
+    });
+}
+
+retrieveRooms();
+
 //Socket listeners
-socket.emit('retrieveRooms', (roomList) => {
-    roomList.forEach((room) => {
-        appendToRoomContainer(room.name, room.owner, room.onlineUsers.length);
-    })
+socket.on('updateRooms', () => { //Maybe this can be improved adding specific updates, like remove room or update online users.
+    retrieveRooms();
 });
 
 socket.on('newUserLoggedIn', (message) => {
@@ -67,7 +76,7 @@ document.addEventListener('click', (event) => { //Listener for .room class objec
 document.querySelector('#newRoomBtn').addEventListener('click', (event) => {
     let form = document.querySelector("#indexForm");
 
-    if (form.checkValidity()) {
+    if (form.reportValidity()) {
         let room = document.querySelector('#newRoomText').value;
 
         socket.emit('createRoom', room, (error) => {
