@@ -51,7 +51,7 @@ document.querySelector("#indexForm").addEventListener("submit", (event) => {
     let username = elements.username.value;
     let room = elements.room.value;
 
-    socket.emit('join', { username, room }, (error, onlineUsers) => {
+    socket.emit('joinRoom', { username, room }, (error, onlineUsers) => {
         if (!error) {
             document.querySelector('#hiddenChat').style.display = 'flex';
             document.querySelector('#indexForm').style.display = 'none';
@@ -100,7 +100,21 @@ document.querySelector("#text").addEventListener("keypress", (event) => {
         event.target.value = "";
         event.preventDefault();
     }
-})
+});
+
+document.querySelector('#quitBtn').addEventListener('click', () => {
+    socket.emit('quitRoom');
+
+    document.querySelector('#messagesContainer').innerHTML = '';
+    document.querySelectorAll('.onlineUser').forEach((onlineUser) => {
+        onlineUser.remove();
+    });
+
+    document.querySelector('#hiddenChat').style.display = 'none';
+    document.querySelector('#indexForm').style.display = 'flex';
+
+    retrieveRooms();
+});
 
 document.querySelector("#location").addEventListener("click", () => {
     if (!navigator.geolocation)

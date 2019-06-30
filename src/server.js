@@ -11,7 +11,7 @@ const io = socketio(server);
 const port = process.env.PORT || 3000;
 
 //TODO:
-//Add a back/disconnect button
+//Problems: The name/room validation is not working.
 //Styles!
 
 io.on('connection', (socket) => {
@@ -38,7 +38,7 @@ io.on('connection', (socket) => {
         });
     });
 
-    socket.on('join', ({ username, room }, callback) => {
+    socket.on('joinRoom', ({ username, room }, callback) => {
         let onlineUsers = retrieveUsersInRoom(room);
 
         insertUser(socket.id, username, room).then(() => {
@@ -61,6 +61,22 @@ io.on('connection', (socket) => {
 
             message.username = user.username;
             io.to(user.room).emit("receiveMessage", message);
+        }
+    });
+
+    socket.on('quitRoom', () => {
+        let user = retrieveUser(socket.id);
+
+        if (user) {
+            socket.leave(user.room);
+            socket.join(guestRoom);
+
+            removeUser(socket.id).then(() => {
+                io.to(user.room).emit("userDisconnected", buildMessage("", user.username));
+                io.to(guestRoom).emit("updateRooms");
+            }).catch((error) => {
+                console.log(error);
+            });
         }
     });
 

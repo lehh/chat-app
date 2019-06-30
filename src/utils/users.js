@@ -72,29 +72,6 @@ const removeUser = (userId) => {
     });
 }
 
-// const removeUser = (userId) => {
-//     let userIndex = users.findIndex((user) => {
-//         return userId === user.id;
-//     });
-
-//     if (userIndex >= 0) {
-//         let room = retrieveRoom(user.id);
-
-//         if (room) {
-//             let onlineUsers = retrieveUsersInRoom(room.name);
-//             if (onlineUsers.length > 0) {
-//                 updateRoomOwner(user.id, onlineUsers[0].id);
-//             }
-//         }
-
-
-//         users.splice(userIndex, 1);
-//         return true;
-//     } else {
-//         return false;
-//     }
-// }
-
 //Support functions
 const usernameIsValid = (username, room) => {
     let isValid = true;
