@@ -47,47 +47,20 @@ socket.on('userDisconnected', (message) => {
 document.querySelector("#indexForm").addEventListener("submit", (event) => {
     event.preventDefault();
 
-    let elements = event.target.elements;
-    let username = elements.username.value;
-    let room = elements.room.value;
+    let room = event.target.elements.room.value; //document.querySelector('#newRoomText').value;
 
-    if (!room)
-        return false;
-
-    socket.emit('joinRoom', { username, room }, (error, onlineUsers) => {
-        if (!error) {
-            document.querySelector('#hiddenChat').style.display = 'flex';
-            document.querySelector('#indexForm').style.display = 'none';
-
-            onlineUsers.forEach((user) => {
-                appendToOnlineUsersContainer(user.username);
-            });
-        } else {
-            alert(`Error: ${error}`);
-        }
-
+    socket.emit('createRoom', room, (error) => {
+        if (!error)
+            enterRoom(room);
+        else
+            alert(error);
     });
 });
 
 document.addEventListener('click', (event) => { //Listener for .room class objects.
     if (event.target && event.target.className === 'room') {
         let room = event.target.dataset.name;
-        submitForm(room);
-    }
-});
-
-document.querySelector('#newRoomBtn').addEventListener('click', (event) => {
-    let form = document.querySelector("#indexForm");
-
-    if (form.reportValidity()) {
-        let room = document.querySelector('#newRoomText').value;
-
-        socket.emit('createRoom', room, (error) => {
-            if (!error)
-                submitForm(room);
-            else
-                alert(error);
-        });
+        enterRoom(room);
     }
 });
 
@@ -201,10 +174,27 @@ let sendMessage = (message) => {
     socket.emit('sendMessage', { text: message, createdAt: new Date().getTime() })
 }
 
-let submitForm = (room) => {
-    document.querySelector('#hiddenRoom').value = room;
+const enterRoom = (room) => {
+    let form = document.querySelector("#indexForm");
 
-    document.querySelector('#submitBtn').click();
+    let usernameInput = form.elements.username;
+
+    if (usernameInput.reportValidity()){
+        let username = usernameInput.value;
+
+        socket.emit('joinRoom', { username, room }, (error, onlineUsers) => {
+            if (!error) {
+                document.querySelector('#hiddenChat').style.display = 'flex';
+                document.querySelector('#indexForm').style.display = 'none';
+    
+                onlineUsers.forEach((user) => {
+                    appendToOnlineUsersContainer(user.username);
+                });
+            } else {
+                alert(`Error: ${error}`);
+            }
+        });
+    }
 }
 
 let getAddress = (latLong) => {
