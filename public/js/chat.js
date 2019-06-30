@@ -51,6 +51,9 @@ document.querySelector("#indexForm").addEventListener("submit", (event) => {
     let username = elements.username.value;
     let room = elements.room.value;
 
+    if (!room)
+        return false;
+
     socket.emit('joinRoom', { username, room }, (error, onlineUsers) => {
         if (!error) {
             document.querySelector('#hiddenChat').style.display = 'flex';
@@ -60,7 +63,7 @@ document.querySelector("#indexForm").addEventListener("submit", (event) => {
                 appendToOnlineUsersContainer(user.username);
             });
         } else {
-            alert(`Something has occurred: ${error}`);
+            alert(`Error: ${error}`);
         }
 
     });
@@ -174,14 +177,14 @@ let createStrongText = (text) => {
 let appendToOnlineUsersContainer = (username) => {
     let userDiv = document.createElement('div');
     userDiv.setAttribute('class', 'onlineUser');
-    userDiv.setAttribute('id', username.trim());
+    userDiv.setAttribute('id', username.replace(' ', ''));
     userDiv.append(username);
 
     document.querySelector('#onlineUsersContainer').appendChild(userDiv);
 }
 
 let removeOnlineUser = (username) => {
-    document.querySelector(`#${username.trim()}`).remove();
+    document.querySelector(`#${username.replace(' ', '')}`).remove();
 }
 
 let appendToRoomContainer = (roomName, ownerId, numberOfUsers) => {

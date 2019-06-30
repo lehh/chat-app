@@ -11,7 +11,6 @@ const io = socketio(server);
 const port = process.env.PORT || 3000;
 
 //TODO:
-//Problems: The name/room validation is not working.
 //Styles!
 
 io.on('connection', (socket) => {
@@ -55,18 +54,9 @@ io.on('connection', (socket) => {
         });
     });
 
-    socket.on('sendMessage', (message) => {
-        if (message.text) {
-            let user = retrieveUser(socket.id);
-
-            message.username = user.username;
-            io.to(user.room).emit("receiveMessage", message);
-        }
-    });
-
     socket.on('quitRoom', () => {
         let user = retrieveUser(socket.id);
-
+        
         if (user) {
             socket.leave(user.room);
             socket.join(guestRoom);
@@ -77,6 +67,15 @@ io.on('connection', (socket) => {
             }).catch((error) => {
                 console.log(error);
             });
+        }
+    });
+
+    socket.on('sendMessage', (message) => {
+        if (message.text) {
+            let user = retrieveUser(socket.id);
+
+            message.username = user.username;
+            io.to(user.room).emit("receiveMessage", message);
         }
     });
 

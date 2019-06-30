@@ -5,7 +5,7 @@ let users = [];
 const insertUser = (id, username, room) => {
     return new Promise((resolve, reject) => {
         try {
-            if (usernameIsValid(username)) {
+            if (usernameIsValid(username, room)) {
                 //username = username.trim().toLowerCase();
                 //room = room.trim().toLowerCase();
 
