@@ -1,18 +1,16 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
-}
-
-.flex-container {
-    display: flex;
-    flex-flow: column wrap;
-}
-
-.flex-container>div {
-    margin: 10px;
-}
-
 .room {
     cursor: pointer;
+}
+
+#noRoomsInfo {
+    text-align: center;
+    display: none;
+    border: 1px solid #cccccc;
+    border-top: 0px;
+}
+
+#newRoomContainer {
+    text-align: center;
 }
 
 #textDiv {

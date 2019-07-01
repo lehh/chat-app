@@ -3,60 +3,87 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link rel="stylesheet" href="css/chat.css" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/style.css" />
     <title>Chat App</title>
 </head>
 
 <body>
-    <form id="indexForm">
-        <div class="flex-container">
+    <div class="navbar">
+        Chat App!
+    </div>
+    <div id="wrapper">
+        <form id="indexForm">
+            <div class="flex-container">
+                <div>
+                    <p>
+                        Welcome to my Chat App! You can either enter an already created room or create a new one.
+                    </p>
+                    <p>
+                        To enter in a room, just click on the room name.
+                    </p>
+                    <p>
+                        To create a new room, just fill in the room name input and click on "Create Room".
+                    </p>
+                    <p>
+                        Oh, right! Don't forget to fill in your username too.
+                    </p>
+                </div>
+
+                <div id="usernameContainer" class="container">
+                    <h4 style="margin: 0px;">Username</h4>
+                    <input type="text" name="username" id="username" class="input-text" required />
+                </div>
+
+                <div id="roomContainer" class="container">
+                    <h4>Available Rooms</h4>
+                    <table id="roomsTable" class="table">
+                        <thead>
+                            <tr>
+                                <th>Room Name</th>
+                                <th>Users</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                    <div id="noRoomsInfo">
+                        <i>No rooms yet</i>
+                    </div>
+                </div>
+                <div id="newRoomContainer" class="container">
+                    <input type="text" name="room" class="input-text" id="newRoomText" placeholder="Room name"
+                        autocomplete="off" required />
+                    <input type="submit" class="button" value="Create Room" />
+                </div>
+            </div>
+        </form>
+
+        <div class="flex-container" id="hiddenChat" style="display:none;">
             <div>
-                Chat App!
+                <button class="button" id="quitBtn">Quit Room</button>
+            </div>
+            <div id="chatContainer">
+                <div id="messagesContainer">
+                </div>
+
+                <div id="onlineUsersContainer">
+                    <div id="onlineUsersTitle">Online Users</div>
+                </div>
             </div>
 
             <div>
-                <input type="text" name="username" id="username" placeholder="Username" autocomplete="off" required />
+                <button type="button" class="button" id="location">Share Location</button>
             </div>
 
-            <div id="roomContainer">
-
+            <div id="textDiv">
+                <textarea name="text" id="text" rows="6"></textarea>
+                <button type="button" id="sendBtn">Send</button>
             </div>
-
-            <div>
-                <input type="text" name="room" id="newRoomText" placeholder="Room name" required/>
-                <input type="submit" value="Create Room" id="newRoomBtn"/>
-            </div>
-
-            <!-- <input type="hidden" id="hiddenRoom" name="room"> -->
-
-
-            <!-- <input type="submit" id="submitBtn" style="display: none;"> -->
-        </div>
-    </form>
-
-    <div class="flex-container" id="hiddenChat" style="display:none;">
-        <div>
-            <button id="quitBtn">Quit Room</button>
-        </div>
-        <div id="chatContainer">
-            <div id="messagesContainer">
-            </div>
-
-            <div id="onlineUsersContainer">
-                <div id="onlineUsersTitle">Online Users</div>
-            </div>
-        </div>
-
-        <div>
-            <button type="button" id="location">Share Location</button>
-        </div>
-
-        <div id="textDiv">
-            <textarea name="text" id="text" rows="6"></textarea>
-            <button type="button" id="sendBtn">Send</button>
         </div>
     </div>
-    
+
     <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/chat.js"></script>

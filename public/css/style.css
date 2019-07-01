@@ -1,0 +1,77 @@
+html, body {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 18px;
+    background-color: #6b7280;
+    margin: 0px;
+}
+
+.input-text {
+    width: auto;
+    height: auto;
+    padding: 10px;
+    font-size: 16px;
+    border-style: unset;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.button {
+    height: 35px;
+    font-size: 16px;
+    color: white;
+    border: 1px solid #133a88;
+    border-radius: 5px;
+    border-image: unset;
+    background-color: #1f4286;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #132c5e;
+}
+
+.table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table th, .table td {
+    border: 1px solid #cccccc;
+    padding: 7px;
+}
+
+.table>tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.navbar {
+    background-color: #1e4286;
+    text-align: left;
+    padding: 5px;
+    color: white;
+    font-weight: bold;
+    font-size: 23px;
+}
+
+.flex-container {
+    display: flex;
+    flex-flow: column wrap;
+}
+
+.flex-container>div {
+    margin: 10px;
+}
+
+.container {
+    padding: 5px;
+    border-radius: 5px;
+}
+
+#wrapper {
+    /*Center the website content*/
+    max-width: 900px;
+    margin: auto;
+    background-color: #ffffff;
+    height: 100%;
+    min-height: 700px;
+}

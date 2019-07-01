@@ -2,10 +2,18 @@ const socket = io();
 
 const retrieveRooms = () => {
     socket.emit('retrieveRooms', (roomList) => {
-        document.querySelector('#roomContainer').innerHTML = "";
-        roomList.forEach((room) => {
-            appendToRoomContainer(room.name, room.owner, room.onlineUsers.length);
-        })
+        document.querySelector('#roomsTable').getElementsByTagName('tbody')[0].innerHTML = '';
+        let noRoomsInfo = document.querySelector('#noRoomsInfo');
+
+        if (roomList.length > 0) {
+            roomList.forEach((room) => {
+                appendToRoomTable(room.name, room.owner, room.onlineUsers.length);
+            });
+
+            noRoomsInfo.style.display = 'none';
+        } else {
+            noRoomsInfo.style.display = 'block';
+        }
     });
 }
 
@@ -47,19 +55,20 @@ socket.on('userDisconnected', (message) => {
 document.querySelector("#indexForm").addEventListener("submit", (event) => {
     event.preventDefault();
 
-    let room = event.target.elements.room.value; //document.querySelector('#newRoomText').value;
+    let room = event.target.elements.room.value;
 
     socket.emit('createRoom', room, (error) => {
         if (!error)
             enterRoom(room);
         else
-            alert(error);
+            alert(`Error: ${error}`);
     });
 });
 
-document.addEventListener('click', (event) => { //Listener for .room class objects.
-    if (event.target && event.target.className === 'room') {
-        let room = event.target.dataset.name;
+document.addEventListener('click', (event) => { //Listener for .room class tr's.
+    let parentNode = event.target.parentNode;
+    if (event.target && parentNode.className === 'room') {
+        let room = parentNode.dataset.name;
         enterRoom(room);
     }
 });
@@ -87,7 +96,7 @@ document.querySelector('#quitBtn').addEventListener('click', () => {
     });
 
     document.querySelector('#hiddenChat').style.display = 'none';
-    document.querySelector('#indexForm').style.display = 'flex';
+    document.querySelector('#indexForm').style.display = 'initial';
 
     retrieveRooms();
 });
@@ -160,33 +169,39 @@ let removeOnlineUser = (username) => {
     document.querySelector(`#${username.replace(' ', '')}`).remove();
 }
 
-let appendToRoomContainer = (roomName, ownerId, numberOfUsers) => {
-    let roomDiv = document.createElement('div');
-    roomDiv.setAttribute('class', 'room');
-    roomDiv.setAttribute('data-id', ownerId);
-    roomDiv.setAttribute('data-name', roomName);
-    roomDiv.append(`${roomName} - ${numberOfUsers}`);
+let appendToRoomTable = (roomName, ownerId, numberOfUsers) => {
+    let roomTr = document.createElement('tr');
+    roomTr.setAttribute('class', 'room');
+    roomTr.setAttribute('data-id', ownerId);
+    roomTr.setAttribute('data-name', roomName);
 
-    document.querySelector('#roomContainer').appendChild(roomDiv);
-}
+    let nameTd = document.createElement('td');
+    nameTd.append(roomName);
 
-let sendMessage = (message) => {
-    socket.emit('sendMessage', { text: message, createdAt: new Date().getTime() })
+    let numberTd = document.createElement('td');
+    numberTd.append(numberOfUsers);
+
+    roomTr.appendChild(nameTd);
+    roomTr.appendChild(numberTd);
+
+    document.querySelector('#roomsTable').getElementsByTagName('tbody')[0].appendChild(roomTr);
 }
 
 const enterRoom = (room) => {
+    debugger;
     let form = document.querySelector("#indexForm");
 
     let usernameInput = form.elements.username;
 
-    if (usernameInput.reportValidity()){
+    if (usernameInput.reportValidity()) {
         let username = usernameInput.value;
 
         socket.emit('joinRoom', { username, room }, (error, onlineUsers) => {
             if (!error) {
+                debugger;
                 document.querySelector('#hiddenChat').style.display = 'flex';
                 document.querySelector('#indexForm').style.display = 'none';
-    
+
                 onlineUsers.forEach((user) => {
                     appendToOnlineUsersContainer(user.username);
                 });
@@ -195,6 +210,10 @@ const enterRoom = (room) => {
             }
         });
     }
+}
+
+let sendMessage = (message) => {
+    socket.emit('sendMessage', { text: message, createdAt: new Date().getTime() })
 }
 
 let getAddress = (latLong) => {
